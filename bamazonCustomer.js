@@ -73,8 +73,8 @@ function askConsumer() {
     var query = "SELECT * FROM products WHERE ?"
     connection.query(query, { product_name: requestedID }, function(err, res) {
 
-      howManyItems = parseInt(answers.howMany);
-      stockQuantity = parseInt(res[0].stock_quantity);
+      var howManyItems = parseInt(answers.howMany);
+      var stockQuantity = parseInt(res[0].stock_quantity);
 
       if (res.length == 0){
         console.log("Item does not exist, please try again");
@@ -85,13 +85,24 @@ function askConsumer() {
         console.log("Insufficient quantity!")
         endSimulation();
       } else {
-        console.log("Total order cost: $" + (howManyItems * res[0].price));
-
-        /////////////////////////////////////////fix below query
-        connection.query("UPDATE products SET stock_quantity = " + (stockQuantity - howManyItems) + " WHERE product_name = " + requestedID, function(err, res) {
-          endSimulation();
-        });
+        console.log("Total order cost: $" + (howManyItems * res[0].price));        
       }
+    })
+    .then(function() {
+      connection.query("UPDATE products SET  = ? WHERE  = ?", 
+          [
+            {
+              stock_quantity: stockQuantity - howManyItems
+            },
+            {
+              product_name: requestedID
+            }
+          ], function(err, res) {
+            console.log(stockQuantity);
+            console.log(howManyItems);
+            console.log(requestedID);
+            endSimulation();
+          });
     });
   });
   });
