@@ -1,22 +1,14 @@
 var mysql = require("mysql");
-
 var cTable = require('console.table');
+var inquirer = require('inquirer');
 
 var connection = mysql.createConnection({
   host: "localhost",
-
-  // Your port; if not 3306
   port: 3306,
-
-  // Your username
   user: "root",
-
-  // Your password
   password: "",
   database: "bamazon"
 });
-
-var inquirer = require('inquirer');
 
 connection.connect(function(err) {
   if (err) throw err;
@@ -27,7 +19,7 @@ connection.connect(function(err) {
 function showAllItems() {
   connection.query("SELECT * FROM products", function(err, res) {
     for (var i = 0; i < res.length; i++) {
-      console.log(res[i].product_name + " | " + res[i].department_name + " | " + res[i].price + " | " + res[i].stock_quantity);
+      console.log(res[i].item_id + " | " + res[i].product_name + " | " + res[i].price + " | " + res[i].stock_quantity);
 
       // console.table([
       //   {
@@ -60,7 +52,7 @@ function askConsumer() {
         {
             type: "input",
             name: "howMany",
-            message: "How many " + requestedID +  "'s would you like to buy??"
+            message: "How many would you like to buy??"
         }
   ])
   .then(function(answers) {
@@ -70,8 +62,8 @@ function askConsumer() {
       endSimulation();
     } 
 
-    var query = "SELECT * FROM products WHERE ?"
-    connection.query(query, { product_name: requestedID }, function(err, res) {
+    var query = "SELECT * FROM products WHERE ?";
+    connection.query(query, { item_id: requestedID }, function(err, res) {
 
       var howManyItems = parseInt(answers.howMany);
       var stockQuantity = parseInt(res[0].stock_quantity);
@@ -82,31 +74,32 @@ function askConsumer() {
       };
 
       if (howManyItems > stockQuantity) {
-        console.log("Insufficient quantity!")
+        console.log("Insufficient quantity!");
         endSimulation();
       } else {
-        console.log("Total order cost: $" + (howManyItems * res[0].price));        
+        console.log("Total order cost: $" + (howManyItems * res[0].price));
+        testing(howManyItems, stockQuantity, requestedID);      
       }
-    })
-    .then(function() {
-      connection.query("UPDATE products SET  = ? WHERE  = ?", 
-          [
-            {
-              stock_quantity: stockQuantity - howManyItems
-            },
-            {
-              product_name: requestedID
-            }
-          ], function(err, res) {
-            console.log(stockQuantity);
-            console.log(howManyItems);
-            console.log(requestedID);
-            endSimulation();
-          });
-    });
+    });  
   });
+  
   });
-};
+}; 
+
+function testing(howManyItems, stockQuantity, requestedID) {
+  var query = "UPDATE products SET ? WHERE ?";
+    connection.query(query, 
+      [
+        {
+          stock_quantity: (stockQuantity - howManyItems)
+        },
+        {
+          item_id: requestedID
+        }
+      ], function(err, res) {
+        endSimulation();
+      });
+}
 
 function endSimulation() {
   connection.end();
