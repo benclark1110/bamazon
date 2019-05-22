@@ -80,7 +80,7 @@ function addToInventory() {
     connection.query(query, 
         [
             {
-              stock_quantity: ((stock_quantity + answers.howMuch))
+              stock_quantity: (stock_quantity + answers.howMuch)
             },
             {
               item_id: answers.whatItem

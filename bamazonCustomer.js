@@ -20,15 +20,6 @@ function showAllItems() {
   connection.query("SELECT * FROM products", function(err, res) {
     for (var i = 0; i < res.length; i++) {
       console.log(res[i].item_id + " | " + res[i].product_name + " | " + res[i].price + " | " + res[i].stock_quantity);
-
-      // console.table([
-      //   {
-      //     productName: res[i].product_name,
-      //     Department: res[i].department_name,
-      //     Price: res[i].price,
-      //     Quantity: res[i].stock_quantity
-      //   }
-      // ]);
     }
     askConsumer();
   });
